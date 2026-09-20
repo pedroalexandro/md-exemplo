@@ -1,162 +1,227 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Exemplo Markdown</title>
+```
+<title>Exemplo Markdown</title>
 
-    <link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="estilo.css">
 
-    <!-- Highlight.js -->
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"
-    >
+<!-- Highlight.js -->
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"
+>
 
-    <!-- Marked.js -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- Marked.js -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- Highlight.js -->
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
+<!-- Highlight.js com várias linguagens -->
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+```
+
 </head>
 
 <body>
 
-    <main id="conteudo">
-        <p class="carregando">Carregando...</p>
-    </main>
+```
+<main id="conteudo">
+    <p class="carregando">Carregando...</p>
+</main>
 
-    <script>
-        const arquivoMarkdown = 'md/exemplo-markdown.md';
+<script>
+    const arquivoMarkdown = 'md/exemplo-markdown.md';
 
-        async function carregarMarkdown() {
-            try {
-                const response = await fetch(arquivoMarkdown);
+    async function carregarMarkdown() {
+        try {
+            const response = await fetch(arquivoMarkdown);
 
-                if (!response.ok) {
-                    throw new Error(
-                        `Erro HTTP ${response.status} ao carregar ${arquivoMarkdown}`
-                    );
-                }
-
-                const markdown = await response.text();
-
-                const conteudo = document.getElementById('conteudo');
-
-                conteudo.innerHTML = marked.parse(markdown);
-
-                configurarCodigo();
-
-            } catch (error) {
-                document.getElementById('conteudo').innerHTML = `
-                    <div class="erro">
-                        <h1>Erro ao carregar o Markdown</h1>
-                        <p>${escapeHtml(error.message)}</p>
-                    </div>
-                `;
+            if (!response.ok) {
+                throw new Error(
+                    `Erro HTTP ${response.status} ao carregar ${arquivoMarkdown}`
+                );
             }
+
+            const markdown = await response.text();
+
+            const conteudo = document.getElementById('conteudo');
+
+            conteudo.innerHTML = marked.parse(markdown);
+
+            configurarCodigo();
+
+        } catch (error) {
+            document.getElementById('conteudo').innerHTML = `
+                <div class="erro">
+                    <h1>Erro ao carregar o Markdown</h1>
+                    <p>${escapeHtml(error.message)}</p>
+                </div>
+            `;
+        }
+    }
+
+    function configurarCodigo() {
+        const blocos = document.querySelectorAll('pre code');
+
+        blocos.forEach((bloco) => {
+
+            const linguagem = obterLinguagem(bloco);
+
+            if (linguagem) {
+                destacarCodigo(bloco, linguagem);
+            } else {
+                destacarAutomaticamente(bloco);
+            }
+
+            adicionarBotaoCopiar(bloco);
+        });
+    }
+
+    function obterLinguagem(bloco) {
+        const classe = Array.from(bloco.classList).find(
+            item => item.startsWith('language-')
+        );
+
+        if (!classe) {
+            return '';
         }
 
-        function configurarCodigo() {
-            const blocos = document.querySelectorAll('pre code');
+        return classe
+            .substring('language-'.length)
+            .toLowerCase();
+    }
 
-            blocos.forEach((bloco) => {
+    function destacarCodigo(bloco, linguagem) {
+        const aliases = {
+            js: 'javascript',
+            jsx: 'javascript',
+            ts: 'typescript',
+            tsx: 'typescript',
 
-                let linguagem = obterLinguagem(bloco);
+            html: 'xml',
+            htm: 'xml',
+            xhtml: 'xml',
 
-                if (linguagem) {
-                    linguagem = normalizarLinguagem(linguagem);
+            css: 'css',
 
-                    bloco.classList.add(`language-${linguagem}`);
-                }
+            sh: 'bash',
+            shell: 'bash',
 
-                try {
-                    hljs.highlightElement(bloco);
-                } catch (error) {
-                    console.warn(
-                        'Não foi possível destacar o código:',
-                        error
-                    );
-                }
+            ps: 'powershell',
+            ps1: 'powershell',
 
-                adicionarBotaoCopiar(bloco);
-            });
-        }
+            py: 'python',
 
-        function obterLinguagem(bloco) {
-            const classe = Array.from(bloco.classList).find(
-                item => item.startsWith('language-')
+            pas: 'delphi',
+            pascal: 'delphi',
+            objectpascal: 'delphi',
+            object_pascal: 'delphi',
+
+            cs: 'csharp',
+
+            cpp: 'cpp',
+            cxx: 'cpp',
+
+            md: 'markdown',
+
+            yml: 'yaml',
+
+            text: 'plaintext',
+            txt: 'plaintext'
+        };
+
+        const linguagemNormalizada =
+            aliases[linguagem] || linguagem;
+
+        if (hljs.getLanguage(linguagemNormalizada)) {
+
+            bloco.classList.add(
+                `language-${linguagemNormalizada}`
             );
 
-            if (!classe) {
-                return '';
+            try {
+                hljs.highlightElement(bloco);
+            } catch (error) {
+                console.warn(
+                    `Erro ao destacar ${linguagemNormalizada}:`,
+                    error
+                );
             }
 
-            return classe.substring('language-'.length).toLowerCase();
+        } else {
+
+            console.warn(
+                `Linguagem não encontrada no Highlight.js: ${linguagem}`
+            );
+
+            destacarAutomaticamente(bloco);
+        }
+    }
+
+    function destacarAutomaticamente(bloco) {
+        try {
+            hljs.highlightElement(bloco);
+        } catch (error) {
+            console.warn(
+                'Não foi possível destacar o código:',
+                error
+            );
+        }
+    }
+
+    function adicionarBotaoCopiar(bloco) {
+        const pre = bloco.parentElement;
+
+        if (!pre || pre.querySelector('.botao-copiar')) {
+            return;
         }
 
-        function normalizarLinguagem(linguagem) {
-            const aliases = {
-                pascal: 'delphi',
-                objectpascal: 'delphi',
-                object_pascal: 'delphi',
-                delphi: 'delphi',
-                js: 'javascript',
-                html: 'xml',
-                htm: 'xml',
-                sh: 'bash',
-                shell: 'bash'
-            };
+        const botao = document.createElement('button');
 
-            return aliases[linguagem] || linguagem;
-        }
+        botao.className = 'botao-copiar';
+        botao.type = 'button';
+        botao.textContent = 'Copiar';
 
-        function adicionarBotaoCopiar(bloco) {
-            const pre = bloco.parentElement;
+        botao.addEventListener('click', async () => {
 
-            if (!pre || pre.querySelector('.botao-copiar')) {
-                return;
+            try {
+                await navigator.clipboard.writeText(
+                    bloco.innerText
+                );
+
+                botao.textContent = 'Copiado!';
+
+                setTimeout(() => {
+                    botao.textContent = 'Copiar';
+                }, 1500);
+
+            } catch (error) {
+
+                botao.textContent = 'Erro';
+
+                setTimeout(() => {
+                    botao.textContent = 'Copiar';
+                }, 1500);
             }
+        });
 
-            const botao = document.createElement('button');
+        pre.appendChild(botao);
+    }
 
-            botao.className = 'botao-copiar';
-            botao.type = 'button';
-            botao.textContent = 'Copiar';
+    function escapeHtml(texto) {
+        const div = document.createElement('div');
 
-            botao.addEventListener('click', async () => {
-                try {
-                    await navigator.clipboard.writeText(bloco.innerText);
+        div.textContent = texto;
 
-                    botao.textContent = 'Copiado!';
+        return div.innerHTML;
+    }
 
-                    setTimeout(() => {
-                        botao.textContent = 'Copiar';
-                    }, 1500);
-
-                } catch (error) {
-                    botao.textContent = 'Erro';
-
-                    setTimeout(() => {
-                        botao.textContent = 'Copiar';
-                    }, 1500);
-                }
-            });
-
-            pre.appendChild(botao);
-        }
-
-        function escapeHtml(texto) {
-            const div = document.createElement('div');
-
-            div.textContent = texto;
-
-            return div.innerHTML;
-        }
-
-        carregarMarkdown();
-    </script>
+    carregarMarkdown();
+</script>
+```
 
 </body>
 </html>
