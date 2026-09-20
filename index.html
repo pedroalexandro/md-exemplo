@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo Markdown</title>
+
+    <link rel="stylesheet" href="estilo.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+
+    <main id="conteudo">
+        <p>Carregando...</p>
+    </main>
+
+    <script>
+        const arquivoMarkdown = 'md/exemplo-markdown.md';
+
+        fetch(arquivoMarkdown)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Erro ao carregar o arquivo: ${response.status}`
+                    );
+                }
+
+                return response.text();
+            })
+            .then(markdown => {
+                document.getElementById('conteudo').innerHTML =
+                    marked.parse(markdown);
+            })
+            .catch(error => {
+                document.getElementById('conteudo').innerHTML = `
+                    <h1>Erro</h1>
+                    <p>Não foi possível carregar o arquivo Markdown.</p>
+                    <pre>${error.message}</pre>
+                `;
+            });
+    </script>
+
+</body>
+</html>
