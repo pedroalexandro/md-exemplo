@@ -12,69 +12,142 @@ body {
     background: #ffffff;
     color: #222222;
     font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
     line-height: 1.6;
 }
 
 #conteudo {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 40px 50px 80px 50px;
 }
 
+/* Títulos */
+
 h1 {
     margin-top: 0;
+    margin-bottom: 30px;
     padding-bottom: 12px;
     border-bottom: 2px solid #dddddd;
     color: #222222;
+    font-size: 32px;
 }
 
 h2 {
-    margin-top: 40px;
+    margin-top: 42px;
+    margin-bottom: 20px;
     padding-bottom: 8px;
     border-bottom: 1px solid #dddddd;
     color: #333333;
+    font-size: 25px;
 }
 
 h3 {
-    margin-top: 30px;
+    margin-top: 32px;
     color: #444444;
+    font-size: 21px;
 }
+
+h4 {
+    margin-top: 25px;
+    color: #555555;
+}
+
+/* Texto */
 
 p {
     margin: 16px 0;
 }
 
+strong {
+    color: #111111;
+}
+
 a {
     color: #0969da;
+    text-decoration: none;
 }
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Listas */
+
+ul,
+ol {
+    padding-left: 30px;
+}
+
+li {
+    margin: 5px 0;
+}
+
+/* Código inline */
+
+code {
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #f0f0f0;
+    color: #c7254e;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.92em;
+}
+
+/* Blocos de código */
+
+pre {
+    position: relative;
+    overflow-x: auto;
+    margin: 24px 0;
+    padding: 18px 20px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    background: #0d1117;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+pre code {
+    display: block;
+    padding: 0;
+    background: transparent;
+    color: #e6edf3;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre;
+}
+
+/* Botão Copiar */
+
+.botao-copiar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 5px 10px;
+    border: 1px solid #57606a;
+    border-radius: 5px;
+    background: #21262d;
+    color: #e6edf3;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.botao-copiar:hover {
+    background: #30363d;
+}
+
+/* Citações */
 
 blockquote {
     margin: 20px 0;
     padding: 10px 20px;
     border-left: 4px solid #cccccc;
     background: #f6f8fa;
+    color: #555555;
 }
 
-code {
-    padding: 2px 5px;
-    border-radius: 4px;
-    background: #f0f0f0;
-    font-family: Consolas, "Courier New", monospace;
-}
-
-pre {
-    overflow-x: auto;
-    padding: 16px;
-    border-radius: 6px;
-    background: #f6f8fa;
-    border: 1px solid #dddddd;
-}
-
-pre code {
-    padding: 0;
-    background: transparent;
-    font-size: 14px;
-}
+/* Tabelas */
 
 table {
     width: 100%;
@@ -91,30 +164,72 @@ td {
 
 th {
     background: #f0f0f0;
+    font-weight: bold;
 }
+
+/* Imagens */
 
 img {
     max-width: 100%;
     height: auto;
 }
 
-ul,
-ol {
-    padding-left: 30px;
-}
+/* Linha horizontal */
 
 hr {
-    margin: 30px 0;
+    margin: 35px 0;
     border: 0;
     border-top: 1px solid #dddddd;
 }
 
+/* Mensagem de carregamento */
+
+.carregando {
+    color: #666666;
+    text-align: center;
+}
+
+/* Mensagem de erro */
+
+.erro {
+    padding: 25px;
+    border: 1px solid #d1242f;
+    border-radius: 8px;
+    background: #fff5f5;
+}
+
+.erro h1 {
+    color: #b62324;
+}
+
+/* Tela pequena */
+
 @media (max-width: 700px) {
+
     #conteudo {
         padding: 25px 20px 50px 20px;
     }
 
+    h1 {
+        font-size: 27px;
+    }
+
+    h2 {
+        font-size: 23px;
+    }
+
+    h3 {
+        font-size: 19px;
+    }
+
     pre {
+        margin-left: -5px;
+        margin-right: -5px;
+        padding: 15px;
+        border-radius: 6px;
+    }
+
+    pre code {
         font-size: 13px;
     }
 }

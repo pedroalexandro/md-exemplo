@@ -3,43 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Exemplo Markdown</title>
 
     <link rel="stylesheet" href="estilo.css">
 
+    <!-- Highlight.js -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css"
+    >
+
+    <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Highlight.js -->
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/common.min.js"></script>
 </head>
 
 <body>
 
     <main id="conteudo">
-        <p>Carregando...</p>
+        <p class="carregando">Carregando...</p>
     </main>
 
     <script>
         const arquivoMarkdown = 'md/exemplo-markdown.md';
 
-        fetch(arquivoMarkdown)
-            .then(response => {
+        async function carregarMarkdown() {
+            try {
+                const response = await fetch(arquivoMarkdown);
+
                 if (!response.ok) {
                     throw new Error(
-                        `Erro ao carregar o arquivo: ${response.status}`
+                        `Erro HTTP ${response.status} ao carregar ${arquivoMarkdown}`
                     );
                 }
 
-                return response.text();
-            })
-            .then(markdown => {
-                document.getElementById('conteudo').innerHTML =
-                    marked.parse(markdown);
-            })
-            .catch(error => {
+                const markdown = await response.text();
+
+                const conteudo = document.getElementById('conteudo');
+
+                conteudo.innerHTML = marked.parse(markdown);
+
+                configurarCodigo();
+
+            } catch (error) {
                 document.getElementById('conteudo').innerHTML = `
-                    <h1>Erro</h1>
-                    <p>Não foi possível carregar o arquivo Markdown.</p>
-                    <pre>${error.message}</pre>
+                    <div class="erro">
+                        <h1>Erro ao carregar o Markdown</h1>
+                        <p>${escapeHtml(error.message)}</p>
+                    </div>
                 `;
+            }
+        }
+
+        function configurarCodigo() {
+            const blocos = document.querySelectorAll('pre code');
+
+            blocos.forEach((bloco) => {
+
+                let linguagem = obterLinguagem(bloco);
+
+                if (linguagem) {
+                    linguagem = normalizarLinguagem(linguagem);
+
+                    bloco.classList.add(`language-${linguagem}`);
+                }
+
+                try {
+                    hljs.highlightElement(bloco);
+                } catch (error) {
+                    console.warn(
+                        'Não foi possível destacar o código:',
+                        error
+                    );
+                }
+
+                adicionarBotaoCopiar(bloco);
             });
+        }
+
+        function obterLinguagem(bloco) {
+            const classe = Array.from(bloco.classList).find(
+                item => item.startsWith('language-')
+            );
+
+            if (!classe) {
+                return '';
+            }
+
+            return classe.substring('language-'.length).toLowerCase();
+        }
+
+        function normalizarLinguagem(linguagem) {
+            const aliases = {
+                pascal: 'delphi',
+                objectpascal: 'delphi',
+                object_pascal: 'delphi',
+                delphi: 'delphi',
+                js: 'javascript',
+                html: 'xml',
+                htm: 'xml',
+                sh: 'bash',
+                shell: 'bash'
+            };
+
+            return aliases[linguagem] || linguagem;
+        }
+
+        function adicionarBotaoCopiar(bloco) {
+            const pre = bloco.parentElement;
+
+            if (!pre || pre.querySelector('.botao-copiar')) {
+                return;
+            }
+
+            const botao = document.createElement('button');
+
+            botao.className = 'botao-copiar';
+            botao.type = 'button';
+            botao.textContent = 'Copiar';
+
+            botao.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(bloco.innerText);
+
+                    botao.textContent = 'Copiado!';
+
+                    setTimeout(() => {
+                        botao.textContent = 'Copiar';
+                    }, 1500);
+
+                } catch (error) {
+                    botao.textContent = 'Erro';
+
+                    setTimeout(() => {
+                        botao.textContent = 'Copiar';
+                    }, 1500);
+                }
+            });
+
+            pre.appendChild(botao);
+        }
+
+        function escapeHtml(texto) {
+            const div = document.createElement('div');
+
+            div.textContent = texto;
+
+            return div.innerHTML;
+        }
+
+        carregarMarkdown();
     </script>
 
 </body>
